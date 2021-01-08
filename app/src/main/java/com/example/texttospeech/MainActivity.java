@@ -13,12 +13,11 @@ import android.os.Bundle;
 import android.speech.RecognitionListener;
 import android.speech.RecognizerIntent;
 import android.speech.SpeechRecognizer;
+import android.speech.tts.TextToSpeech;
 import android.view.MotionEvent;
 import android.view.View;
-import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import java.util.ArrayList;
@@ -29,6 +28,7 @@ public class MainActivity extends AppCompatActivity {
     private SpeechRecognizer speechRecognizer;
     private EditText editText;
     private ImageView micButton;
+    private TextToSpeech t1;
 
     @Override
     protected void onCreate(final Bundle savedInstanceState) {
@@ -41,6 +41,16 @@ public class MainActivity extends AppCompatActivity {
         editText = findViewById(R.id.text);
         micButton = findViewById(R.id.button);
         speechRecognizer = SpeechRecognizer.createSpeechRecognizer(this);
+
+
+        t1 = new TextToSpeech(getApplicationContext(), new TextToSpeech.OnInitListener() {
+            @Override
+            public void onInit(int status) {
+                if(status != TextToSpeech.ERROR) {
+                    t1.setLanguage(Locale.US);
+                }
+            }
+        });
 
         final Intent speechRecognizerIntent = new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH);
         speechRecognizerIntent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL,RecognizerIntent.LANGUAGE_MODEL_FREE_FORM);
@@ -65,7 +75,7 @@ public class MainActivity extends AppCompatActivity {
 
             @Override
             public void onBufferReceived(byte[] bytes) {
-
+                editText.setHint("Completed...");
             }
 
             @Override
@@ -75,14 +85,17 @@ public class MainActivity extends AppCompatActivity {
 
             @Override
             public void onError(int i) {
-
+                editText.setHint("Error...");
+                micButton.setImageResource(R.drawable.ic_mic_black_off);
             }
 
             @Override
             public void onResults(Bundle bundle) {
                 micButton.setImageResource(R.drawable.ic_mic_black_off);
                 ArrayList<String> data = bundle.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION);
-                    editText.setText(data.get(0));
+                String text = data.get(0);
+                editText.setText(text);
+                t1.speak(text, TextToSpeech.QUEUE_FLUSH, null);
             }
 
             @Override
@@ -96,14 +109,18 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+
         micButton.setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View view, MotionEvent motionEvent) {
                 if (motionEvent.getAction() == MotionEvent.ACTION_UP){
                     speechRecognizer.stopListening();
+                }else{
+                    editText.setText("");
+                    editText.setHint("Preparing...");
                 }
                 if (motionEvent.getAction() == MotionEvent.ACTION_DOWN){
-                    micButton.setImageResource(R.drawable.ic_mic_black_24dp);
+                    micButton.setImageResource(R.drawable.ic_mic_red_on);
                     speechRecognizer.startListening(speechRecognizerIntent);
                 }
                 return false;
@@ -111,6 +128,14 @@ public class MainActivity extends AppCompatActivity {
         });
 
 
+    }
+
+    public void onPause(){
+        if(t1 !=null){
+            t1.stop();
+            t1.shutdown();
+        }
+        super.onPause();
     }
 
     @Override
