@@ -43,23 +43,25 @@ public class MainActivity extends AppCompatActivity {
         speechRecognizer = SpeechRecognizer.createSpeechRecognizer(this);
 
 
-        t1 = new TextToSpeech(getApplicationContext(), new TextToSpeech.OnInitListener() {
-            @Override
-            public void onInit(int status) {
-                if(status != TextToSpeech.ERROR) {
-                    t1.setLanguage(Locale.US);
-                }
-            }
-        });
-
+        //final Intent speechRecognizerIntent = new Intent(RecognizerIntent.ACTION_VOICE_SEARCH_HANDS_FREE);
         final Intent speechRecognizerIntent = new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH);
         speechRecognizerIntent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL,RecognizerIntent.LANGUAGE_MODEL_FREE_FORM);
         speechRecognizerIntent.putExtra(RecognizerIntent.EXTRA_LANGUAGE, Locale.getDefault());
 
+        speechRecognizerIntent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_PREFERENCE, Locale.getDefault());
+        speechRecognizerIntent.putExtra(RecognizerIntent.EXTRA_PARTIAL_RESULTS, true);
+        speechRecognizerIntent.putExtra(RecognizerIntent.EXTRA_MAX_RESULTS, 3);
+        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.M)
+        {
+            // Setting offline speech recognition to true
+            //speechRecognizerIntent.putExtra(RecognizerIntent.EXTRA_PREFER_OFFLINE, true);
+        }
+
+
         speechRecognizer.setRecognitionListener(new RecognitionListener() {
             @Override
             public void onReadyForSpeech(Bundle bundle) {
-
+                editText.setHint("Ready...");
             }
 
             @Override
@@ -85,7 +87,7 @@ public class MainActivity extends AppCompatActivity {
 
             @Override
             public void onError(int i) {
-                editText.setHint("Error...");
+                editText.setHint("Error..."+i);
                 micButton.setImageResource(R.drawable.ic_mic_black_off);
             }
 
@@ -128,6 +130,20 @@ public class MainActivity extends AppCompatActivity {
         });
 
 
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+
+        t1 = new TextToSpeech(getApplicationContext(), new TextToSpeech.OnInitListener() {
+            @Override
+            public void onInit(int status) {
+                if(status != TextToSpeech.ERROR) {
+                    t1.setLanguage(Locale.US);
+                }
+            }
+        });
     }
 
     public void onPause(){
