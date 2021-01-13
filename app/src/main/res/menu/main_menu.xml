@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <item
+        android:id="@+id/menu_item_import"
+        android:icon="@drawable/ic_baseline_attach_file_24"
+        android:orderInCategory="100"
+        app:showAsAction="always"
+        android:actionLayout="@layout/support_simple_spinner_dropdown_item"
+        android:title="Import" />
+
+    <item
+        android:id="@+id/menu_item_export"
+        android:icon="@drawable/ic_baseline_cloud_download_24"
+        android:orderInCategory="100"
+        app:showAsAction="always"
+        android:actionLayout="@layout/support_simple_spinner_dropdown_item"
+        android:title="Export" />
+
+</menu>
